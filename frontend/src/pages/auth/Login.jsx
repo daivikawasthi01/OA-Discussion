@@ -1,0 +1,161 @@
+import { useState, useEffect } from "react";
+import api from "../../services/api";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import GoogleIcon from "@/services/googleIcon";
+
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/app/feed", { replace: true });
+    }
+  }, [navigate]);
+
+  const login = async () => {
+    if (!email || !password) {
+      toast.error("Email and password are required");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await api.post("/auth/login", { email, password });
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("userId", res.data.userId);
+      localStorage.setItem("email", res.data.email);
+
+      toast.success("Login successful");
+
+      navigate(
+        res.data.role === "admin" ? "/app/admin" : "/app/feed",
+        { replace: true }
+      );
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Invalid email or password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="w-full flex justify-center mt-20 px-6"
+    >
+      <div className="w-[400px] bg-[#201f1f] rounded-2xl border border-white/5 shadow-[0_0_48px_rgba(255,140,0,0.04)] overflow-hidden">
+        {/* Amber top bar */}
+        <div className="h-1 w-full molten-gradient" />
+
+        <div className="p-8 space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-black tracking-tighter text-white">
+              Welcome Back
+            </h2>
+            <p className="text-xs text-[#adaaaa] uppercase tracking-widest font-bold">
+              The Kinetic Curator
+            </p>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[#adaaaa] block mb-2">Email</label>
+            <input
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#000000] border-none rounded-xl px-5 py-3.5 text-sm text-white focus:ring-1 focus:ring-[#ff9f4a] placeholder:text-[#484847]"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[#adaaaa] block mb-2">Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#000000] border-none rounded-xl px-5 py-3.5 text-sm text-white focus:ring-1 focus:ring-[#ff9f4a] placeholder:text-[#484847]"
+            />
+          </div>
+
+          {/* Login Button */}
+          <button
+            className="w-full py-3.5 molten-gradient text-[#180800] font-bold text-xs uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-[#ff9f4a]/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            onClick={login}
+            disabled={loading}
+          >
+            {loading && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#180800] border-t-transparent" />
+            )}
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+          {/* Google Login */}
+          <button
+            className="w-full py-3.5 bg-[#131313] border border-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#1a1919] transition-colors flex items-center justify-center gap-3"
+            onClick={() =>
+              (window.location.href =
+                "https://oadiscussion.onrender.com/auth/google")
+            }
+          >
+            <GoogleIcon size={18} />
+            Continue with Google
+          </button>
+
+          {/* Links */}
+          <div className="text-center space-y-2 pt-2">
+            <p className="text-xs text-[#adaaaa]">
+              <span
+                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot password?
+              </span>
+            </p>
+            <p className="text-xs text-[#adaaaa]">
+              Don&apos;t have an account?{" "}
+              <span
+                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4 text-[#ff9f4a]"
+                onClick={() => navigate("/signup")}
+              >
+                Sign up
+              </span>
+            </p>
+            <div className="pt-4 border-t border-white/5">
+              <button
+                className="text-[10px] uppercase tracking-widest font-bold text-[#adaaaa] hover:text-[#ff9f4a] transition-all bg-[#1a1919] px-4 py-2 rounded-full border border-white/5"
+                onClick={() => {
+                  localStorage.setItem("token", "DEMO_TOKEN");
+                  localStorage.setItem("role", "user");
+                  localStorage.setItem("email", "test@curator.io");
+                  navigate("/app/feed", { replace: true });
+                }}
+              >
+                Skip Login (Test Mode)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
