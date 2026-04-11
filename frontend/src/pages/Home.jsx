@@ -1,20 +1,79 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import CompanyLogo from "../components/CompanyLogo";
 
 const COMPANY_LOGOS = [
-  { name: "Google", logo: "https://cdn.simpleicons.org/google/ffffff" },
-  { name: "Spotify", logo: "https://cdn.simpleicons.org/spotify/ffffff" },
-  { name: "Notion", logo: "https://cdn.simpleicons.org/notion/ffffff" },
-  { name: "Meta", logo: "https://cdn.simpleicons.org/meta/ffffff" },
-  { name: "Apple", logo: "https://cdn.simpleicons.org/apple/ffffff" },
-  { name: "Netflix", logo: "https://cdn.simpleicons.org/netflix/ffffff" },
-  { name: "Uber", logo: "https://cdn.simpleicons.org/uber/ffffff" },
-  { name: "Stripe", logo: "https://cdn.simpleicons.org/stripe/ffffff" },
-  { name: "Figma", logo: "https://cdn.simpleicons.org/figma/ffffff" },
-  { name: "Razorpay", logo: "https://cdn.simpleicons.org/razorpay/ffffff" },
-  { name: "GitHub", logo: "https://cdn.simpleicons.org/github/ffffff" },
-  { name: "Atlassian", logo: "https://cdn.simpleicons.org/atlassian/ffffff" },
+  // Big Tech
+  { name: "Google" },
+  { name: "Meta" },
+  { name: "Apple" },
+  { name: "Microsoft" },
+  { name: "Amazon" },
+  { name: "Netflix" },
+  // Developer Tools & Infra
+  { name: "GitHub" },
+  { name: "Atlassian" },
+  { name: "Stripe" },
+  { name: "Figma" },
+  { name: "Notion" },
+  { name: "Slack" },
+  { name: "Vercel" },
+  { name: "Cloudflare" },
+  { name: "Docker" },
+  { name: "Kubernetes" },
+  { name: "Terraform" },
+  { name: "Datadog" },
+  { name: "Grafana" },
+  { name: "Sentry" },
+  { name: "Postman" },
+  { name: "Supabase" },
+  { name: "Firebase" },
+  { name: "MongoDB" },
+  { name: "Redis" },
+  { name: "Elasticsearch" },
+  { name: "Jenkins" },
+  { name: "GitLab" },
+  { name: "Bitbucket" },
+  { name: "Linear" },
+  // Consumer / Social
+  { name: "Spotify" },
+  { name: "Uber" },
+  { name: "Airbnb" },
+  { name: "Snapchat" },
+  { name: "Pinterest" },
+  { name: "LinkedIn" },
+  { name: "Discord" },
+  { name: "Reddit" },
+  { name: "Twitch" },
+  { name: "YouTube" },
+  { name: "TikTok" },
+  { name: "WhatsApp" },
+  { name: "Telegram" },
+  // Fintech & Payments
+  { name: "Razorpay" },
+  { name: "PayPal" },
+  { name: "Visa" },
+  { name: "Mastercard" },
+  { name: "Coinbase" },
+  { name: "Robinhood" },
+  // Cloud & AI
+  { name: "OpenAI" },
+  { name: "Anthropic" },
+  { name: "Hugging Face" },
+  { name: "NVIDIA" },
+  { name: "Salesforce" },
+  { name: "Adobe" },
+  { name: "Shopify" },
+  { name: "Twilio" },
+  { name: "Zoom" },
+  // Indian Tech
+  { name: "Flipkart" },
+  { name: "Infosys" },
+  { name: "Wipro" },
+  { name: "Tata Consultancy Services" },
 ];
+
+
 
 // Duplicate for seamless marquee loop
 const MARQUEE_LOGOS = [...COMPANY_LOGOS, ...COMPANY_LOGOS];
@@ -85,7 +144,6 @@ export default function Home() {
                 "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
             }}
           >
-            {/* Inject keyframe animation via a style tag */}
             <style>{`
               @keyframes marquee {
                 0%   { transform: translateX(0); }
@@ -94,7 +152,7 @@ export default function Home() {
               .marquee-track {
                 display: flex;
                 width: max-content;
-                animation: marquee 30s linear infinite;
+                animation: marquee 60s linear infinite;
               }
               .marquee-track:hover {
                 animation-play-state: paused;
@@ -108,18 +166,11 @@ export default function Home() {
                   className="group flex flex-col items-center gap-3 mx-8 cursor-pointer flex-shrink-0"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center p-3 group-hover:bg-white/10 group-hover:border-[#ff9f4a]/30 group-hover:scale-110 transition-all duration-300 backdrop-blur-sm">
-                    <img
-                      src={c.logo}
-                      alt={c.name}
-                      className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.nextSibling.style.display = "flex";
-                      }}
+                    <CompanyLogo
+                      name={c.name}
+                      className="w-full h-full"
+                      color="ffffff"
                     />
-                    <span className="text-xs text-[#767575] font-bold hidden items-center justify-center w-full h-full">
-                      {c.name[0]}
-                    </span>
                   </div>
                   <span className="text-[10px] text-[#767575] font-bold uppercase tracking-widest group-hover:text-[#adaaaa] transition-colors whitespace-nowrap">
                     {c.name}

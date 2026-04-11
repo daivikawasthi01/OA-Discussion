@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
+import CompanyLogo from "../components/CompanyLogo";
 
 const TOPIC_OPTIONS = [
   "Distributed Systems", "Low-latency", "Machine Learning", "Concurrency",
@@ -203,7 +204,14 @@ export default function Forum() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <FormField label="Company" placeholder="e.g. NVIDIA, Jane Street" value={form.company} onChange={(v) => updateWithDraft("company", v)} />
+              <div className="relative">
+                <FormField label="Company" placeholder="e.g. NVIDIA, Jane Street" value={form.company} onChange={(v) => updateWithDraft("company", v)} />
+                {form.company && (
+                  <div className="absolute right-4 bottom-3 w-8 h-8 rounded-lg bg-[#0e0e0e] border border-white/10 flex items-center justify-center p-1.5 pointer-events-none">
+                    <CompanyLogo name={form.company} className="w-full h-full" />
+                  </div>
+                )}
+              </div>
               <FormField label="Role" placeholder="e.g. Senior Software Engineer" value={form.role} onChange={(v) => updateWithDraft("role", v)} />
               <FormField label="OA Platform" placeholder="e.g. HackerRank, CodeSignal" value={form.platform} onChange={(v) => updateWithDraft("platform", v)} />
               <FormField label="Salary Range" placeholder="e.g. ₹18L - ₹22L" value={form.salaryRange} onChange={(v) => updateWithDraft("salaryRange", v)} />
@@ -360,10 +368,13 @@ function TagSection({ icon, title, options, selected, onToggle }) {
   const [isAdding, setIsAdding] = useState(false);
   const [customVal, setCustomVal] = useState("");
 
-  const handleAdd = () => {
+  const handleAdd = (e) => {
+    e?.preventDefault();
     if (customVal.trim() && !selected.includes(customVal.trim())) {
       onToggle(customVal.trim());
       setCustomVal("");
+      setIsAdding(false);
+    } else if (!customVal.trim()) {
       setIsAdding(false);
     }
   };
@@ -403,7 +414,7 @@ function TagSection({ icon, title, options, selected, onToggle }) {
                 if (e.key === "Escape") setIsAdding(false);
               }}
             />
-            <button onClick={handleAdd} className="text-[#ff9f4a] hover:scale-110 active:scale-95 transition-transform">
+            <button type="button" onClick={handleAdd} className="text-[#ff9f4a] hover:scale-110 active:scale-95 transition-transform">
               <span className="material-symbols-outlined text-sm">check</span>
             </button>
             <button onClick={() => setIsAdding(false)} className="text-[#767575] hover:text-white transition-colors">

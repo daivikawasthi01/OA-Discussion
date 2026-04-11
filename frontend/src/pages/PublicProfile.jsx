@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 import ExperienceCard from "../components/ExperienceCard";
 import { getCompanyKey } from "../services/normalize";
+import CompanyLogo from "../components/CompanyLogo";
 
 export default function PublicProfile() {
   const { id } = useParams();
@@ -151,10 +152,13 @@ export default function PublicProfile() {
               {loopedTags.map((c, i) => (
                 <span
                   key={`${c.company}-${c.tag}-${i}`}
-                  className="px-3 py-1 bg-[#131313] border border-[#484847]/10 rounded-full whitespace-nowrap text-sm text-[#adaaaa] hover:bg-[#262626] transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-1 bg-[#131313] border border-[#484847]/10 rounded-full whitespace-nowrap text-sm text-[#adaaaa] hover:bg-[#262626] transition-colors"
                 >
+                  <div className="w-5 h-5 rounded bg-black/40 flex items-center justify-center p-1">
+                    <CompanyLogo name={c.company} className="w-full h-full" />
+                  </div>
                   {c.company}
-                  <span className="mx-1 text-[#767575]">·</span>
+                  <span className="mx-0.5 text-[#767575]">·</span>
                   {c.tag}
                   <span className="ml-1 text-[#ff9f4a] font-semibold">
                     ({c.count})

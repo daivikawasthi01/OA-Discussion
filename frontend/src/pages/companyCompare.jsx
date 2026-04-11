@@ -4,6 +4,7 @@ import axios from "axios";
 import { MOCK_COMPARE_DATA } from "../services/mockData";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
+import CompanyLogo from "../components/CompanyLogo";
 import {
   BarChart,
   Bar,
@@ -12,6 +13,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 const COMPANIES = [
@@ -47,6 +51,7 @@ export default function CompareCompanies() {
   const [dataA, setDataA] = useState(null);
   const [dataB, setDataB] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [chartView, setChartView] = useState("funnel"); // 'funnel' | 'salary'
 
   /* ═══ SHAREABLE URL ═══ */
   useEffect(() => {
@@ -83,28 +88,20 @@ export default function CompareCompanies() {
   useEffect(() => { fetchCompare(); }, [companyA, companyB]);
 
   /* ═══ FUNNEL CHART DATA ═══ */
-  const funnelData = [
-    {
-      stage: "Recruiter Screen",
-      [companyA]: parseFloat(dataA?.passRate) || 85,
-      [companyB]: parseFloat(dataB?.passRate) || 42,
-    },
-    {
-      stage: "Technical Phone",
-      [companyA]: 60,
-      [companyB]: 28,
-    },
-    {
-      stage: "On-Site Loop",
-      [companyA]: 25,
-      [companyB]: 15,
-    },
-    {
-      stage: "Hiring Committee",
-      [companyA]: 95,
-      [companyB]: 35,
-    },
-  ];
+  /* ═══ DYNAMIC CHART DATA ═══ */
+  const funnelStages = ["Screening", "Technical", "On-site", "Offer"];
+  const funnelData = funnelStages.map((stage, idx) => ({
+    stage,
+    [companyA]: (dataA || mockData(companyA)).funnel?.[idx] || 0,
+    [companyB]: (dataB || mockData(companyB)).funnel?.[idx] || 0,
+  }));
+
+  const growthStages = ["L3/Junior", "L4/Software", "L5/Senior", "L6/Staff"];
+  const growthData = growthStages.map((stage, idx) => ({
+    stage,
+    [companyA]: (dataA || mockData(companyA)).salaryGrowth?.[idx] || 0,
+    [companyB]: (dataB || mockData(companyB)).salaryGrowth?.[idx] || 0,
+  }));
 
   return (
     <motion.main
@@ -184,61 +181,126 @@ export default function CompareCompanies() {
             {/* Interview Funnel Analysis — Recharts */}
             <div className="lg:col-span-12 mt-12">
               <div className="bg-[#131313] rounded-xl p-10 border border-[#484847]/5">
-                <div className="flex items-center justify-between mb-10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-white">Interview Funnel Analysis</h3>
-                    <p className="text-[#adaaaa]">Historical conversion rates over the last 12 months</p>
+                    <h3 className="text-2xl font-bold text-white">
+                      {chartView === "funnel" ? "Interview Funnel Analysis" : "Compensation Benchmarking"}
+                    </h3>
+                    <p className="text-[#adaaaa]">
+                      {chartView === "funnel" 
+                        ? "Historical conversion rates across interview stages" 
+                        : "Total compensation scaling by engineering level"}
+                    </p>
                   </div>
-                  <div className="flex space-x-4">
+                  
+                  {/* Premium Perspective Toggle */}
+                  <div className="flex bg-[#000000] p-1 rounded-xl border border-[#484847]/20 self-start">
+                    <button
+                      onClick={() => setChartView("funnel")}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${
+                        chartView === "funnel" 
+                          ? "bg-[#ff9f4a] text-[#180800]" 
+                          : "text-[#adaaaa] hover:text-white"
+                      }`}
+                    >
+                      Funnel
+                    </button>
+                    <button
+                      onClick={() => setChartView("salary")}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${
+                        chartView === "salary" 
+                          ? "bg-[#ff9f4a] text-[#180800]" 
+                          : "text-[#adaaaa] hover:text-white"
+                      }`}
+                    >
+                      Salary
+                    </button>
+                  </div>
+
+                  <div className="flex space-x-6">
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full molten-gradient"></div>
-                      <span className="text-xs text-white">{companyA}</span>
+                      <CompanyLogo name={companyA} className="w-4 h-4" />
+                      <span className="text-xs font-bold text-white tracking-tight">{companyA}</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full bg-[#484847]"></div>
-                      <span className="text-xs text-[#adaaaa]">{companyB}</span>
+                      <CompanyLogo name={companyB} className="w-4 h-4" color="484847" />
+                      <span className="text-xs font-bold text-[#adaaaa] tracking-tight">{companyB}</span>
                     </div>
                   </div>
                 </div>
 
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={funnelData} barGap={4}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#484847" strokeOpacity={0.15} />
-                    <XAxis
-                      dataKey="stage"
-                      tick={{ fill: "#adaaaa", fontSize: 11, fontWeight: 700 }}
-                      axisLine={{ stroke: "#484847", strokeOpacity: 0.2 }}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fill: "#767575", fontSize: 10 }}
-                      axisLine={false}
-                      tickLine={false}
-                      unit="%"
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "#201f1f",
-                        border: "1px solid rgba(72,72,71,0.2)",
-                        borderRadius: "0.75rem",
-                        color: "#fff",
-                        fontSize: 12,
-                      }}
-                      cursor={{ fill: "rgba(255,159,74,0.05)" }}
-                    />
-                    <Bar
-                      dataKey={companyA}
-                      fill="#ff9f4a"
-                      radius={[4, 4, 0, 0]}
-                      animationDuration={1000}
-                    />
-                    <Bar
-                      dataKey={companyB}
-                      fill="#484847"
-                      radius={[4, 4, 0, 0]}
-                      animationDuration={1000}
-                    />
-                  </BarChart>
+                <ResponsiveContainer width="100%" height={450}>
+                  {chartView === "funnel" ? (
+                    <BarChart data={funnelData} barGap={12}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#484847" strokeOpacity={0.1} vertical={false} />
+                      <XAxis
+                        dataKey="stage"
+                        tick={{ fill: "#767575", fontSize: 11, fontWeight: 700 }}
+                        axisLine={false}
+                        tickLine={false}
+                        dy={10}
+                      />
+                      <YAxis
+                        tick={{ fill: "#767575", fontSize: 10 }}
+                        axisLine={false}
+                        tickLine={false}
+                        unit="%"
+                        dx={-10}
+                      />
+                      <Tooltip
+                        cursor={{ fill: "rgba(255,159,74,0.03)" }}
+                        contentStyle={{
+                          background: "#131313",
+                          border: "1px solid rgba(255,159,74,0.1)",
+                          borderRadius: "12px",
+                          boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
+                        }}
+                      />
+                      <Bar dataKey={companyA} fill="#ff9f4a" radius={[6, 6, 0, 0]} barSize={48} />
+                      <Bar dataKey={companyB} fill="#262626" radius={[6, 6, 0, 0]} barSize={48} stroke="#484847" strokeWidth={1} />
+                    </BarChart>
+                  ) : (
+                    <LineChart data={growthData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#484847" strokeOpacity={0.1} vertical={false} />
+                      <XAxis
+                        dataKey="stage"
+                        tick={{ fill: "#767575", fontSize: 11, fontWeight: 700 }}
+                        axisLine={false}
+                        tickLine={false}
+                        dy={10}
+                      />
+                      <YAxis
+                        tick={{ fill: "#767575", fontSize: 10 }}
+                        axisLine={false}
+                        tickLine={false}
+                        unit="L"
+                        dx={-10}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: "#131313",
+                          border: "1px solid rgba(ff,159,74,0.1)",
+                          borderRadius: "12px",
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey={companyA} 
+                        stroke="#ff9f4a" 
+                        strokeWidth={4} 
+                        dot={{ fill: "#ff9f4a", r: 6 }} 
+                        activeDot={{ r: 8, stroke: "#ff9f4a", strokeWidth: 2, fill: "#131313" }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey={companyB} 
+                        stroke="#484847" 
+                        strokeWidth={4} 
+                        dot={{ fill: "#484847", r: 6 }} 
+                        activeDot={{ r: 8, stroke: "#484847", strokeWidth: 2, fill: "#131313" }}
+                      />
+                    </LineChart>
+                  )}
                 </ResponsiveContainer>
               </div>
             </div>
@@ -258,21 +320,11 @@ function CompanySelect({ value, onChange, companies }) {
   return (
     <div className="flex-1 w-full relative">
       <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-        {slug && !logoErr ? (
-          <img
-            src={`https://cdn.simpleicons.org/${slug}/ff9f4a`}
-            className="w-5 h-5 object-contain"
-            alt=""
-            onError={() => setLogoErr(true)}
-          />
-        ) : (
-          <span className="material-symbols-outlined text-[#ff9f4a]">apartment</span>
-        )}
+        <CompanyLogo name={value} className="w-5 h-5" />
       </div>
       <select
         value={value}
         onChange={(e) => {
-          setLogoErr(false);
           onChange(e.target.value);
         }}
         className="w-full bg-[#000000] border border-[#262626] rounded-xl py-4 pl-12 pr-4 text-white focus:ring-1 focus:ring-[#ff9f4a]/50 font-medium appearance-none cursor-pointer transition-all hover:bg-[#131313]"
@@ -293,18 +345,7 @@ function CompanyCard({ data, name }) {
     <div className="bg-[#201f1f] rounded-xl p-8 transition-transform hover:scale-[1.01] duration-300">
       <div className="flex items-center space-x-6 mb-8">
         <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#131313] flex items-center justify-center border border-white/5 shrink-0 shadow-xl group-hover:scale-110 transition-transform">
-          {slug && !logoErr ? (
-            <img
-              alt={`${name} Logo`}
-              className="w-10 h-10 object-contain"
-              src={`https://cdn.simpleicons.org/${slug}/ff9f4a`}
-              onError={() => setLogoErr(true)}
-            />
-          ) : (
-            <span className="w-16 h-16 rounded-2xl bg-[#ff9f4a] flex items-center justify-center text-2xl font-black text-[#180800]">
-              {name[0]}
-            </span>
-          )}
+          <CompanyLogo name={name} className="w-10 h-10" />
         </div>
         <div>
           <h2 className="text-3xl font-bold text-white">{name}</h2>
@@ -381,5 +422,15 @@ function FocusCard({ topics }) {
 }
 
 function mockData(company) {
-  return MOCK_COMPARE_DATA[company] || { passRate: "5%", difficultyScore: "3.5", avgTC: "₹65,00,000", location: "Gurgaon", category: "Tech", tcNote: "", interviewFocus: ["Coding", "System Design", "Behavioral"] };
+  return MOCK_COMPARE_DATA[company] || { 
+    passRate: "5%", 
+    difficultyScore: "3.5", 
+    avgTC: "₹65,00,000", 
+    location: "Gurgaon", 
+    category: "Tech", 
+    tcNote: "", 
+    interviewFocus: ["Coding", "System Design", "Behavioral"],
+    funnel: [80, 50, 20, 5],
+    salaryGrowth: [30, 45, 60, 90]
+  };
 }

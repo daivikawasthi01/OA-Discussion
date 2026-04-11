@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { formatDateTime } from "@/services/dateFormater";
 import PlainAiText from "./PlainAiText";
+import CompanyLogo from "./CompanyLogo";
 
 import {
   Dialog,
@@ -303,8 +304,11 @@ export default function ExperienceCard({
             {/* COMPANY */}
             <div className="rounded-xl bg-[#131313] px-4 py-3 border border-[#484847]/10">
               <div className="flex items-center justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-lg bg-[#0e0e0e] flex items-center justify-center border border-white/5 shrink-0">
+                    <CompanyLogo name={exp.company} className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
                     <Link to={`/app/experience/${exp._id}`} className="hover:text-[#ff9f4a] transition-colors truncate block">
                       <h3 className="text-xl font-bold text-white block truncate">
                         {exp.company}

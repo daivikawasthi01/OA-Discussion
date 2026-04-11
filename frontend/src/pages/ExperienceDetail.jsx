@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 import ExperienceCard from "../components/ExperienceCard";
 import { getCompanyKey } from "../services/normalize";
+import CompanyLogo from "../components/CompanyLogo";
 
 export default function ExperienceDetail() {
   const { id } = useParams();
@@ -139,8 +140,8 @@ export default function ExperienceDetail() {
                 Experience Detail
               </p>
 
-              <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#ff9f4a] text-2xl">apartment</span>
+              <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-3">
+                <CompanyLogo name={exp.company} className="w-7 h-7" />
                 {exp.company}
               </h1>
 

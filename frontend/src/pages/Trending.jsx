@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MOCK_TRENDING } from "../services/mockData";
+import CompanyLogo from "../components/CompanyLogo";
 
 const SLUG_MAP = {
   Anthropic: "anthropic",
@@ -64,24 +65,8 @@ export default function Trending() {
 
   const filtered = trending.filter((item) => categoryMatch(activeCategory, item));
 
-  const renderLogo = (company, size = "w-full h-full") => {
-    const slug = SLUG_MAP[company];
-    if (slug) {
-      return (
-        <>
-          <img
-            src={`https://cdn.simpleicons.org/${slug}/ffffff`}
-            alt={company}
-            className={`${size} object-contain rounded-lg p-1`}
-            onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
-          />
-          <span className="text-xl font-black text-[#ff9f4a] hidden items-center justify-center w-full h-full bg-[#ff9f4a]/10 rounded-lg">{company?.[0] || "?"}</span>
-        </>
-      );
-    }
-    return (
-      <span className="text-xl font-black text-[#ff9f4a] flex items-center justify-center w-full h-full bg-[#ff9f4a]/10 rounded-lg">{company?.[0] || "?"}</span>
-    );
+  const renderLogo = (company, size = "w-6 h-6") => {
+    return <CompanyLogo name={company} className={size} color="ffffff" />;
   };
 
   return (

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import ExperienceCard from "../components/ExperienceCard";
 import { useSearchParams } from "react-router-dom";
+import CompanyLogo from "../components/CompanyLogo";
 
 import {
   COMPANY_FILTERS,
@@ -423,7 +424,11 @@ function Filters({ filters, apply, horizontal = false }) {
       <FilterSection title="Company" horizontal={horizontal}>
         {filterList(COMPANY_FILTERS).map((c) => {
           const isActive = filters.company === c;
-          return <FilterPill key={c} active={isActive} onClick={() => apply({ company: isActive ? "" : c })}>{c}</FilterPill>
+          return (
+            <FilterPill key={c} active={isActive} onClick={() => apply({ company: isActive ? "" : c })}>
+              {c}
+            </FilterPill>
+          );
         })}
       </FilterSection>
       <FilterSection title="Role" horizontal={horizontal}>
