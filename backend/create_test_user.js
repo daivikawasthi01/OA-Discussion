@@ -4,7 +4,7 @@ const bcryptjs = require("bcryptjs");
 const User = require("./models/User");
 
 async function run() {
-  await mongoose.connect(process.env.MONGO_URI || "mongodb+srv://daivik12:BfT98dD0y3o2rL5D@cluster0.zox7b.mongodb.net/oadiscussion?retryWrites=true&w=majority&appName=Cluster0");
+  await mongoose.connect(process.env.MONGO_URI);
   const email = "test@example.com";
   const password = "Password123!";
   const hashed = await bcryptjs.hash(password, 10);
