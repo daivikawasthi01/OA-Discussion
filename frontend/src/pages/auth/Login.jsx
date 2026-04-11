@@ -134,10 +134,10 @@ export default function Login() {
             <p className="text-xs text-[#adaaaa]">
               Don&apos;t have an account?{" "}
               <span
-                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4 text-[#ff9f4a]"
+                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4 text-[#ff9f4a] font-bold"
                 onClick={() => navigate("/signup")}
               >
-                Sign up
+                Join the Collective
               </span>
             </p>
             <div className="pt-4 border-t border-white/5">

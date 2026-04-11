@@ -1,12 +1,8 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import api from "../../services/api";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import GoogleIcon from "@/services/googleIcon";
 
 export default function Signup() {
@@ -27,7 +23,7 @@ export default function Signup() {
 
       await api.post("/auth/signup", { email, password });
 
-      toast.success("OTP sent to your email ");
+      toast.success("OTP sent to your email");
 
       navigate("/verify-otp", {
         state: { email },
@@ -43,55 +39,66 @@ export default function Signup() {
   };
 
   return (
-    // ✅ SIMPLE ROOT — AppLayout handles centering
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="w-full flex justify-center mt-20"
+      className="w-full flex justify-center mt-20 px-6"
     >
-      <Card
-        className="
-          w-[360px]
-          border border-white/20
-          bg-card
-          shadow-[0_12px_32px_-12px_rgba(255,255,255,0.12)]
-        "
-      >
-        <CardContent className="p-6 space-y-4">
-          <h2 className="text-xl font-semibold text-center">
-            Create Account
-          </h2>
+      <div className="w-[400px] bg-[#201f1f] rounded-2xl border border-white/5 shadow-[0_0_48px_rgba(255,140,0,0.04)] overflow-hidden">
+        {/* Amber top bar */}
+        <div className="h-1 w-full molten-gradient" />
 
-          <Input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border-white/20 focus-visible:border-primary focus-visible:ring-primary/40"
-          />
+        <div className="p-8 space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-black tracking-tighter text-white">
+              Join the Collective
+            </h2>
+            <p className="text-xs text-[#adaaaa] uppercase tracking-widest font-bold">
+              The Kinetic Curator
+            </p>
+          </div>
 
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border-white/20 focus-visible:border-primary focus-visible:ring-primary/40"
-          />
+          {/* Email */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[#adaaaa] block mb-2">Email</label>
+            <input
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#000000] border-none rounded-xl px-5 py-3.5 text-sm text-white focus:ring-1 focus:ring-[#ff9f4a] placeholder:text-[#484847]"
+            />
+          </div>
 
-          <Button
-            className="w-full flex items-center justify-center gap-2"
+          {/* Password */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[#adaaaa] block mb-2">Password</label>
+            <input
+              type="password"
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#000000] border-none rounded-xl px-5 py-3.5 text-sm text-white focus:ring-1 focus:ring-[#ff9f4a] placeholder:text-[#484847]"
+            />
+          </div>
+
+          {/* Signup Button */}
+          <button
+            className="w-full py-3.5 molten-gradient text-[#180800] font-bold text-xs uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-[#ff9f4a]/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             onClick={signup}
             disabled={loading}
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {loading ? "Creating..." : "Sign Up"}
-          </Button>
+            {loading && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#180800] border-t-transparent" />
+            )}
+            {loading ? "Creating..." : "Create Account"}
+          </button>
 
-          {/* GOOGLE SIGNUP */}
-          <Button
-            variant="outline"
-            className="w-full border-white/20 hover:border-primary/40"
+          {/* Google Signup */}
+          <button
+            className="w-full py-3.5 bg-[#131313] border border-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#1a1919] transition-colors flex items-center justify-center gap-3"
             onClick={() =>
               (window.location.href =
                 "https://oadiscussion.onrender.com/auth/google")
@@ -99,19 +106,22 @@ export default function Signup() {
           >
             <GoogleIcon size={18} />
             Continue with Google
-          </Button>
+          </button>
 
-          <p className="text-xs text-center text-muted-foreground">
-            Already have an account?{" "}
-            <span
-              onClick={() => navigate("/login")}
-              className="underline cursor-pointer hover:text-primary"
-            >
-              Login
-            </span>
-          </p>
-        </CardContent>
-      </Card>
+          {/* Links */}
+          <div className="text-center pt-2">
+            <p className="text-xs text-[#adaaaa]">
+              Already have an account?{" "}
+              <span
+                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4 text-[#ff9f4a] font-bold"
+                onClick={() => navigate("/login")}
+              >
+                Login here
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }

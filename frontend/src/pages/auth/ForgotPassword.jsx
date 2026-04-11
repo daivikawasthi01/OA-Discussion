@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ForgotPassword() {
@@ -45,42 +42,63 @@ export default function ForgotPassword() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      
-      className="w-full flex justify-center mt-20"
+      className="w-full flex justify-center mt-20 px-6"
     >
-      <div
-        className="
-          w-[360px]
-          border border-white/20
-          bg-card
-          shadow-[0_12px_32px_-12px_rgba(255,255,255,0.12)]
-          rounded-lg
-          p-6
-          space-y-4
-        "
-      >
-        <h2 className="text-xl font-semibold text-center">
-          Forgot Password
-        </h2>
+      <div className="w-[400px] bg-[#201f1f] rounded-2xl border border-white/5 shadow-[0_0_48px_rgba(255,140,0,0.04)] overflow-hidden">
+        {/* Amber top bar */}
+        <div className="h-1 w-full molten-gradient" />
 
-        <p className="text-sm text-center text-muted-foreground">
-          Enter your registered email to receive an OTP
-        </p>
+        <div className="p-8 space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-black tracking-tighter text-white">
+              Recovery
+            </h2>
+            <p className="text-xs text-[#adaaaa] uppercase tracking-widest font-bold">
+              Password Retrieval
+            </p>
+          </div>
 
-        <Input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <p className="text-sm text-center text-[#adaaaa] leading-relaxed">
+            Enter your registered email address. We&apos;ll send you an authentication code to reset your password.
+          </p>
 
-        <Button
-          className="w-full flex items-center justify-center gap-2"
-          onClick={sendOtp}
-          disabled={loading}
-        >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? "Sending..." : "Send OTP"}
-        </Button>
+          {/* Email */}
+          <div>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-[#adaaaa] block mb-2">Email address</label>
+            <input
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-[#000000] border-none rounded-xl px-5 py-3.5 text-sm text-white focus:ring-1 focus:ring-[#ff9f4a] placeholder:text-[#484847]"
+            />
+          </div>
+
+          {/* Send Button */}
+          <button
+            className="w-full py-4 molten-gradient text-[#180800] font-bold text-xs uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-[#ff9f4a]/20 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            onClick={sendOtp}
+            disabled={loading}
+          >
+            {loading && (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#180800] border-t-transparent" />
+            )}
+            {loading ? "Sending..." : "Request Recovery Code"}
+          </button>
+
+          {/* Links */}
+          <div className="text-center pt-2">
+            <p className="text-xs text-[#adaaaa]">
+              Wait, I remember it!{" "}
+              <span
+                className="cursor-pointer hover:text-[#ff9f4a] transition-colors underline underline-offset-4 text-[#ff9f4a] font-bold"
+                onClick={() => navigate("/login")}
+              >
+                Go back to login
+              </span>
+            </p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

@@ -158,12 +158,20 @@ export default function AppLayout() {
                 </button>
               </>
             ) : (
-              <Button
-                onClick={() => navigate("/login")}
-                className="molten-gradient text-[#180800] font-bold text-xs uppercase tracking-widest px-6 py-2 rounded-xl hover:scale-[1.02] transition-transform border-none"
-              >
-                Login
-              </Button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="text-xs font-bold text-[#adaaaa] uppercase tracking-widest hover:text-white transition-all px-4 py-2"
+                >
+                  Login
+                </button>
+                <Button
+                  onClick={() => navigate("/signup")}
+                  className="molten-gradient text-[#180800] font-bold text-xs uppercase tracking-widest px-6 py-2 rounded-xl hover:scale-[1.02] transition-transform border-none shadow-[0_8px_24px_rgba(255,159,74,0.15)]"
+                >
+                  Join Now
+                </Button>
+              </div>
             )}
 
             {/* ── Mobile Menu ── */}
@@ -356,12 +364,20 @@ function MobileNav({ isLoggedIn, role, email, logout }) {
             <span>Logout</span>
           </button>
         ) : (
-          <Link
-            to="/login"
-            className="w-full block text-center molten-gradient text-[#180800] font-bold py-3 rounded-xl hover:scale-[1.02] transition-transform shadow-[0_0_24px_rgba(255,159,74,0.2)] mt-4"
-          >
-            Login
-          </Link>
+          <div className="space-y-3 mt-4">
+            <Link
+              to="/signup"
+              className="w-full block text-center molten-gradient text-[#180800] font-bold py-4 rounded-xl hover:scale-[1.02] transition-transform shadow-[0_12px_32px_rgba(255,159,74,0.2)]"
+            >
+              Join the Curator
+            </Link>
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full text-center text-[#adaaaa] font-bold py-3 text-xs uppercase tracking-widest hover:text-white transition-colors"
+            >
+              Already a member? Login
+            </button>
+          </div>
         )}
       </div>
     </div>
