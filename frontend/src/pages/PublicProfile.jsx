@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 import { motion } from "framer-motion";
 
 import ExperienceCard from "../components/ExperienceCard";
@@ -14,16 +14,15 @@ export default function PublicProfile() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    axios
-      .get(`https://oadiscussion.onrender.com/api/users/${id}/public`, { silent: true })
+    api
+      .get(`/api/users/${id}/public`, { silent: true })
       .then((res) => setProfile(res.data))
       .catch(() => {});
 
     // Fetch recent contributions
-    axios
-      .get("https://oadiscussion.onrender.com/api/experience", {
+    api
+      .get("/api/experience", {
         params: { author: id, limit: 5 },
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
         silent: true,
       })
       .then((res) => setRecentPosts(res.data.data || res.data || []))

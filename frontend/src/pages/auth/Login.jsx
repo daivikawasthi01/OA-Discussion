@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import GoogleIcon from "@/services/googleIcon";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -114,7 +116,7 @@ export default function Login() {
             className="w-full py-3.5 bg-[#131313] border border-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#1a1919] transition-colors flex items-center justify-center gap-3"
             onClick={() =>
               (window.location.href =
-                "https://oadiscussion.onrender.com/auth/google")
+                `${API_URL}/auth/google`)
             }
           >
             <GoogleIcon size={18} />
@@ -140,19 +142,7 @@ export default function Login() {
                 Join the Collective
               </span>
             </p>
-            <div className="pt-4 border-t border-white/5">
-              <button
-                className="text-[10px] uppercase tracking-widest font-bold text-[#adaaaa] hover:text-[#ff9f4a] transition-all bg-[#1a1919] px-4 py-2 rounded-full border border-white/5"
-                onClick={() => {
-                  localStorage.setItem("token", "DEMO_TOKEN");
-                  localStorage.setItem("role", "user");
-                  localStorage.setItem("email", "test@curator.io");
-                  navigate("/app/feed", { replace: true });
-                }}
-              >
-                Skip Login (Test Mode)
-              </button>
-            </div>
+
           </div>
         </div>
       </div>

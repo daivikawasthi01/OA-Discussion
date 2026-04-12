@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import GoogleIcon from "@/services/googleIcon";
 
+const API_URL = import.meta.env.VITE_API_URL || "";
+
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -101,7 +103,7 @@ export default function Signup() {
             className="w-full py-3.5 bg-[#131313] border border-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-[#1a1919] transition-colors flex items-center justify-center gap-3"
             onClick={() =>
               (window.location.href =
-                "https://oadiscussion.onrender.com/auth/google")
+                `${API_URL}/auth/google`)
             }
           >
             <GoogleIcon size={18} />

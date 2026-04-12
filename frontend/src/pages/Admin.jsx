@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../services/api";
 import { toast } from "sonner";
 
 export default function Admin() {
@@ -8,9 +8,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("https://oadiscussion.onrender.com/api/experience/admin/reported", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    api
+      .get("/api/experience/admin/reported", {
         silent: true,
       })
       .then((res) => setData(res.data || []))
@@ -25,10 +24,7 @@ export default function Admin() {
 
   const remove = async (id) => {
     try {
-      await axios.delete(
-        `https://oadiscussion.onrender.com/api/experience/${id}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+      await api.delete(`/api/experience/${id}`);
       setData((prev) => prev.filter((d) => d._id !== id));
       toast.success("Post removed");
     } catch {

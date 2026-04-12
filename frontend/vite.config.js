@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
+const BACKEND_URL = process.env.VITE_API_URL || "https://oadiscussion.onrender.com";
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -11,17 +13,17 @@ export default defineConfig({
     },
   },
   server: {
-    host: true,               // REQUIRED
+    host: true,
     strictPort: true,
-    allowedHosts: "all",      // 🔥 THIS is the key
+    allowedHosts: "all",
     proxy: {
       "/api": {
-        target: "https://oadiscussion.onrender.com",
+        target: BACKEND_URL,
         changeOrigin: true,
         secure: false,
       },
       "/auth": {
-        target: "https://oadiscussion.onrender.com",
+        target: BACKEND_URL,
         changeOrigin: true,
         secure: false,
       },

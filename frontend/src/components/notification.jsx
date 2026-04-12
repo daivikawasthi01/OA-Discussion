@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import axios from "axios";
+import api from "../services/api";
 import { formatDateTime } from "@/services/dateFormater";
 import {
   Bell,
@@ -65,9 +65,8 @@ export default function NotificationBell({ mobile = false }) {
   const fetchNotifications = async () => {
     if (!token) return;
 
-    const res = await axios.get(
-      "https://oadiscussion.onrender.com/api/notifications",
-      { headers: { Authorization: `Bearer ${token}` } }
+    const res = await api.get(
+      "/api/notifications",
     );
 
     setNotifications(res.data || []);
@@ -91,10 +90,9 @@ export default function NotificationBell({ mobile = false }) {
 
   const openNotification = async (n) => {
     if (!n.isRead) {
-      await axios.put(
-        `https://oadiscussion.onrender.com/api/notifications/${n._id}/read`,
+      await api.put(
+        `/api/notifications/${n._id}/read`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setNotifications(prev =>
@@ -109,10 +107,9 @@ export default function NotificationBell({ mobile = false }) {
   };
 
   const markAllRead = async () => {
-    await axios.put(
-      "https://oadiscussion.onrender.com/api/notifications/clear",
+    await api.put(
+      "/api/notifications/clear",
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     setNotifications(prev =>
@@ -139,9 +136,8 @@ export default function NotificationBell({ mobile = false }) {
       setLoading(true);
       setOpen(false);
 
-      await axios.delete(
-        "https://oadiscussion.onrender.com/api/notifications/all",
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.delete(
+        "/api/notifications/all",
       );
 
       setNotifications([]);

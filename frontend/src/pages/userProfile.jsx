@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../services/api";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { MOCK_USERS } from "../services/mockData";
 
 /* ── useCountUp hook ── */
 function useCountUp(target, duration = 800) {
@@ -49,32 +48,22 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("https://oadiscussion.onrender.com/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/users/profile")
       .then((res) => setProfile(res.data))
       .catch(() => {
-        setProfile({
-          ...MOCK_USERS[0],
-          name: localStorage.getItem("name") || MOCK_USERS[0].name,
-          email: localStorage.getItem("email") || MOCK_USERS[0].email,
-        });
+        // If profile fetch fails, redirect to login
+        toast.error("Please login to view your profile");
+        navigate("/login", { replace: true });
       })
       .finally(() => setLoading(false));
   }, []);
 
   const handleConvert = async (coins, points, packName) => {
     try {
-      await axios.post(
-        "https://oadiscussion.onrender.com/api/shop/convert",
-        { coins, points },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post("/api/shop/convert", { coins, points });
       toast.success(`${packName} redeemed!`);
-      const res = await axios.get("https://oadiscussion.onrender.com/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/users/profile");
       setProfile(res.data);
     } catch {
       toast.error("Not enough coins");
@@ -289,7 +278,7 @@ export default function Profile() {
           <div className="bg-[#201f1f] rounded-xl p-6 border border-[#484847]/10">
             <div className="flex flex-wrap gap-[3px]">
               {(() => {
-                // Generate mock heatmap data (52 weeks × 7 days)
+                // Generate heatmap data (52 weeks × 7 days)
                 const seed = (user.name || "user").length;
                 return Array.from({ length: 364 }, (_, i) => {
                   const intensity = Math.floor(Math.sin(i * 0.3 + seed) * 2 + Math.cos(i * 0.7) * 1.5) + 1;

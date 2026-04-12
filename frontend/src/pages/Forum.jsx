@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import confetti from "canvas-confetti";
 import CompanyLogo from "../components/CompanyLogo";
@@ -77,10 +77,10 @@ export default function Forum() {
     if (!form.company) return toast.error("Enter a company name first");
     setAiLoading(true);
     try {
-      const res = await axios.post(
-        "https://oadiscussion.onrender.com/api/experience/generate",
+      const res = await api.post(
+        "/api/experience/generate",
         { company: form.company, role: form.role || "Software Engineer" },
-        { headers: { Authorization: `Bearer ${token}` }, silent: true }
+        { silent: true }
       );
       if (res.data?.experience) update("experience", res.data.experience);
       toast.success("AI draft generated");
@@ -107,14 +107,11 @@ export default function Forum() {
     if (!form.company || !form.experience) return toast.error("Fill required fields");
     setSubmitting(true);
     try {
-      await axios.post(
-        "https://oadiscussion.onrender.com/api/experience",
-        {
+      await api.post("/api/experience", {
           company: form.company, role: form.role, platform: form.platform,
           salaryRange: form.salaryRange, experience: form.experience,
           difficulty: form.difficulty, topics: form.topics, dsaPatterns: form.dsaPatterns,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+        }
       );
       localStorage.removeItem("oadiscuss_draft");
       // Confetti burst

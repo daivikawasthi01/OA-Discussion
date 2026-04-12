@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../services/api";
 
 import ExperienceCard from "../components/ExperienceCard";
 
@@ -16,9 +16,8 @@ export default function Bookmarks() {
     // Also grab local optimistic bookmarks 
     const local = JSON.parse(localStorage.getItem("localBookmarks") || "[]");
     
-    axios
-      .get("https://oadiscussion.onrender.com/api/experience/bookmarks", {
-        headers: { Authorization: `Bearer ${token}` },
+    api
+      .get("/api/experience/bookmarks", {
         silent: true,
       })
       .then((res) => {

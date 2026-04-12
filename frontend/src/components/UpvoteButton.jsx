@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../services/api";
 import { motion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -38,13 +38,10 @@ export default function UpvoteButton({
     setUpvoteCount((prev) => (nextState ? prev + 1 : prev - 1));
 
     try {
-      await axios.post(
-        `https://oadiscussion.onrender.com/api/experience/${id}/upvote`,
+      await api.post(
+        `/api/experience/${id}/upvote`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          silent: true,
-        }
+        { silent: true }
       );
       toast.success(nextState ? "Liked" : "Removed like");
     } catch (err) {

@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import axios from "axios";
+import api from "../services/api";
 import { formatDateTime } from "@/services/dateFormater";
 import PlainAiText from "./PlainAiText";
 import CompanyLogo from "./CompanyLogo";
@@ -100,8 +100,8 @@ export default function ExperienceCard({
   
 
   useEffect(() => {
-    axios
-      .get(`https://oadiscussion.onrender.com/api/comments/${exp._id}`, { silent: true })
+    api
+      .get(`/api/comments/${exp._id}`, { silent: true })
       .then((res) => {
         const total = res.data.reduce(
           (sum, c) => sum + 1 + (c.replies?.length || 0),
@@ -122,13 +122,12 @@ export default function ExperienceCard({
 
     try {
       const url = isFollowing
-        ? "https://oadiscussion.onrender.com/api/users/unfollow/company"
-        : "https://oadiscussion.onrender.com/api/users/follow/company";
+        ? "/api/users/unfollow/company"
+        : "/api/users/follow/company";
 
-      await axios.post(
+      await api.post(
         url,
-        { company: companyKey }, // ✅ SAME AS BACKEND
-        { headers: { Authorization: `Bearer ${token}` } }
+        { company: companyKey },
       );
 
       onFollowChange(companyKey, !isFollowing);
@@ -164,14 +163,9 @@ export default function ExperienceCard({
       onUnbookmark(exp._id);
     }
     try {
-      const res = await axios.post(
-        `https://oadiscussion.onrender.com/api/experience/${exp._id}/bookmark`,
+      const res = await api.post(
+        `/api/experience/${exp._id}/bookmark`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       if (res.data && typeof res.data.bookmarked !== 'undefined') {
          setBookmarked(res.data.bookmarked);
@@ -222,8 +216,8 @@ export default function ExperienceCard({
       setSummaryOpen(true);
       setSummaryLoading(true);
 
-      const res = await axios.post(
-        "https://oadiscussion.onrender.com/api/ai/summarize",
+      const res = await api.post(
+        "/api/ai/summarize",
         {
           text: exp.experienceText,
           topics: exp.topics,

@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, NavLink } from "react-router-dom";
-import axios from "axios";
-import { MOCK_LEADERBOARD, MOCK_EXPERIENCES } from "../services/mockData";
+import api from "../services/api";
 
 /* ── useCountUp hook ── */
 function useCountUp(target, duration = 800) {
@@ -47,35 +46,25 @@ export default function Leaderboard() {
       setLoading(true);
       try {
         const [lbRes, postsRes] = await Promise.all([
-          axios.get("https://oadiscussion.onrender.com/api/users/leaderboard", {
-            headers: { Authorization: `Bearer ${token}` },
+          api.get("/api/users/leaderboard", {
             params: { range: range.toLowerCase() },
             silent: true
           }),
-          axios.get("https://oadiscussion.onrender.com/api/experience", {
-            headers: { Authorization: `Bearer ${token}` },
+          api.get("/api/experience", {
             params: { limit: 1000 }, // High limit for dataset cross-referencing
             silent: true
           })
         ]);
 
         const arr = Array.isArray(lbRes.data) ? lbRes.data : (lbRes.data?.data || []);
-        if (arr.length === 0) {
-          setLeaderboard(MOCK_LEADERBOARD);
-        } else {
-          setLeaderboard(arr);
-        }
+        setLeaderboard(arr);
         
         const postsArr = postsRes.data?.data || [];
-        if (postsArr.length === 0) {
-          setAllPosts(MOCK_EXPERIENCES);
-        } else {
-          setAllPosts(postsArr);
-        }
+        setAllPosts(postsArr);
       } catch (err) {
         console.error("Fetch failed", err);
-        setLeaderboard(MOCK_LEADERBOARD);
-        setAllPosts(MOCK_EXPERIENCES);
+        setLeaderboard([]);
+        setAllPosts([]);
       } finally {
         setLoading(false);
       }
@@ -91,7 +80,7 @@ export default function Leaderboard() {
     
     return leaderboard
       .filter(user => {
-        // Step 1: Check dominant category from mock data mapping
+        // Step 1: Check dominant category
         if (user.dominantCategory === category) return true;
 
         // Step 2: Check matching topics in their actual posts

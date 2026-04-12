@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+import api from "../services/api";
 import { Heart, Trash2, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -45,8 +45,8 @@ export default function CommentSection({
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    axios
-      .get(`https://oadiscussion.onrender.com/api/comments/${experienceId}`)
+    api
+      .get(`/api/comments/${experienceId}`)
       .then((res) => {
         const mapped = res.data.map(mapComment);
         setComments(mapped);
@@ -89,10 +89,9 @@ export default function CommentSection({
     onCommentCountChange?.((c) => c + 1);
     setText("");
 
-    const res = await axios.post(
-      `https://oadiscussion.onrender.com/api/comments/${experienceId}`,
+    const res = await api.post(
+      `/api/comments/${experienceId}`,
       { text },
-      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     setComments((p) =>
@@ -132,10 +131,9 @@ export default function CommentSection({
     setReplyText("");
     setReplyTarget(null);
 
-    const res = await axios.post(
-      `https://oadiscussion.onrender.com/api/comments/${experienceId}`,
+    const res = await api.post(
+      `/api/comments/${experienceId}`,
       { text: replyText, parentComment: parentId },
-      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     setComments((prev) =>
@@ -196,10 +194,9 @@ export default function CommentSection({
       })
     );
 
-    await axios.post(
-      `https://oadiscussion.onrender.com/api/comments/like/${id}`,
+    await api.post(
+      `/api/comments/like/${id}`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
     );
   };
 
@@ -220,10 +217,7 @@ export default function CommentSection({
 
     onCommentCountChange?.((c) => Math.max(0, c - 1));
 
-    await axios.delete(
-      `https://oadiscussion.onrender.com/api/comments/${id}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    await api.delete(`/api/comments/${id}`);
   };
 
   /* ================= UI ================= */

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { MOCK_TRENDING } from "../services/mockData";
+import api from "../services/api";
 import CompanyLogo from "../components/CompanyLogo";
 
 const SLUG_MAP = {
@@ -29,24 +28,17 @@ export default function Trending() {
   const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
-    axios
-      .get("https://oadiscussion.onrender.com/api/experience/trending", {
-        headers: { Authorization: `Bearer ${token}` },
-        silent: true,
-      })
+    api
+      .get("/api/experience/trending", { silent: true })
       .then((res) => {
         const rawData = res.data || [];
         const filtered = rawData.filter(item => 
           !item.author || (item.author.email && item.author.email !== 'UNKNOWN' && item.author.email !== 'null')
         );
-        if (filtered.length === 0) {
-          setTrending(MOCK_TRENDING);
-        } else {
-          setTrending(filtered);
-        }
+        setTrending(filtered);
       })
       .catch(() => {
-        setTrending(MOCK_TRENDING);
+        setTrending([]);
       })
       .finally(() => setLoading(false));
   }, []);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
+import api from "../services/api";
 
 export default function Unlocks() {
   const [data, setData] = useState(null);
@@ -8,9 +8,8 @@ export default function Unlocks() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    axios
-      .get("https://oadiscussion.onrender.com/api/users/me/unlocks", {
-        headers: { Authorization: `Bearer ${token}` },
+    api
+      .get("/api/users/me/unlocks", {
         silent: true,
       })
       .then((res) => setData(res.data))

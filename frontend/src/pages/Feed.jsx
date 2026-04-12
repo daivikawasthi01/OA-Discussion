@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,6 @@ import {
 } from "../services/filter";
 
 import { getCompanyKey } from "../services/normalize";
-import { MOCK_EXPERIENCES } from "../services/mockData";
 
 
 /* ================= PUSH HELPERS ================= */
@@ -87,10 +86,9 @@ export default function Feed() {
   const loadInitialFeed = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        "https://oadiscussion.onrender.com/api/experience",
-        { headers: { Authorization: `Bearer ${token}` }, params: { limit: LIMIT }, silent: true }
-      );
+      const res = await api.get("/api/experience", {
+        params: { limit: LIMIT }, silent: true,
+      });
       const rawData = res.data.data || [];
       const filtered = rawData.filter(exp => 
         exp.author && 
@@ -98,17 +96,12 @@ export default function Feed() {
         exp.author.email !== 'UNKNOWN' && 
         exp.author.email !== 'null'
       );
-
-      if (filtered.length === 0 && filters.company === "" && filters.role === "" && filters.topic === "" && filters.pattern === "" && filters.search === "") {
-        setData(MOCK_EXPERIENCES);
-      } else {
-        setData(filtered);
-      }
+      setData(filtered);
       setCursor(res.data.nextCursor);
       setHasMore(res.data.hasMore);
     } catch (err) {
       console.error("Feed load failed", err);
-      setData(MOCK_EXPERIENCES);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -121,10 +114,9 @@ export default function Feed() {
     fetchingCursorRef.current = cursor;
     setLoadingMore(true);
     try {
-      const res = await axios.get(
-        "https://oadiscussion.onrender.com/api/experience",
-        { headers: { Authorization: `Bearer ${token}` }, params: { cursor, limit: LIMIT }, silent: true }
-      );
+      const res = await api.get("/api/experience", {
+        params: { cursor, limit: LIMIT }, silent: true,
+      });
       if (!res.data.data?.length) { setHasMore(false); return; }
       setData(prev => {
         const existingIds = new Set(prev.map(p => p._id));
@@ -152,11 +144,8 @@ export default function Feed() {
   /* ================= FOLLOWED COMPANIES ================= */
   useEffect(() => {
     if (!token) { setFollowLoaded(true); return; }
-    axios
-      .get("https://oadiscussion.onrender.com/api/users/followed/companies", {
-        headers: { Authorization: `Bearer ${token}` },
-        silent: true
-      })
+    api
+      .get("/api/users/followed/companies", { silent: true })
       .then((res) => setFollowedCompanies((res.data || []).map(getCompanyKey)))
       .catch(() => {})
       .finally(() => setFollowLoaded(true));
@@ -172,9 +161,7 @@ export default function Feed() {
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
-      await axios.post("https://oadiscussion.onrender.com/api/push/subscribe", sub, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post("/api/push/subscribe", sub);
       setShowPushUI(false);
     } catch (err) { console.error("Push failed", err); }
   };
@@ -193,9 +180,9 @@ export default function Feed() {
   /* ================= DAILY CLAIM ================= */
   useEffect(() => {
     if (!token) return;
-    axios.post("https://oadiscussion.onrender.com/api/shop/claim", {}, {
-      headers: { Authorization: `Bearer ${token}` }, silent: true,
-    }).then(() => { setDailyClaimed(true); setTimeout(() => setDailyClaimed(false), 3000); }).catch(() => {});
+    api.post("/api/shop/claim", {}, { silent: true })
+      .then(() => { setDailyClaimed(true); setTimeout(() => setDailyClaimed(false), 3000); })
+      .catch(() => {});
   }, []);
 
   /* ================= FILTER ================= */
@@ -205,9 +192,9 @@ export default function Feed() {
     if ("search" in newFilters) return;
     const { search, ...backendFilters } = updated;
     setLoading(true);
-    axios
-      .get("https://oadiscussion.onrender.com/api/experience/filter", {
-        headers: { Authorization: `Bearer ${token}` }, params: backendFilters, silent: true
+    api
+      .get("/api/experience/filter", {
+        params: backendFilters, silent: true,
       })
       .then((res) => {
         setData(res.data || []); setLocked(false); setCursor(null); setHasMore(false);

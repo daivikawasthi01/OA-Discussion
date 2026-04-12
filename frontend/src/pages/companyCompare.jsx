@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { MOCK_COMPARE_DATA } from "../services/mockData";
+import api from "../services/api";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import CompanyLogo from "../components/CompanyLogo";
@@ -38,6 +37,18 @@ const COMPANY_SLUGS = {
   Tesla: "tesla",
 };
 
+const DEFAULT_COMPANY_DATA = {
+  passRate: "—",
+  difficultyScore: "0",
+  avgTC: "—",
+  location: "—",
+  category: "Tech",
+  tcNote: "",
+  interviewFocus: ["Coding", "System Design", "Behavioral"],
+  funnel: [0, 0, 0, 0],
+  salaryGrowth: [0, 0, 0, 0],
+};
+
 export default function CompareCompanies() {
   const token = localStorage.getItem("token");
   const [searchParams] = useSearchParams();
@@ -71,15 +82,15 @@ export default function CompareCompanies() {
     if (!companyA || !companyB) return;
     setLoading(true);
     try {
-      const res = await axios.get(
-        `https://oadiscussion.onrender.com/api/experience/compare?companyA=${companyA}&companyB=${companyB}`,
-        { headers: { Authorization: `Bearer ${token}` }, silent: true }
-      );
+      const res = await api.get(`/api/experience/compare`, {
+        params: { companyA, companyB },
+        silent: true,
+      });
       setDataA(res.data?.companyA || null);
       setDataB(res.data?.companyB || null);
     } catch {
-      setDataA(mockData(companyA));
-      setDataB(mockData(companyB));
+      setDataA(null);
+      setDataB(null);
     } finally {
       setLoading(false);
     }
@@ -87,20 +98,21 @@ export default function CompareCompanies() {
 
   useEffect(() => { fetchCompare(); }, [companyA, companyB]);
 
-  /* ═══ FUNNEL CHART DATA ═══ */
+  const safeData = (data) => data || DEFAULT_COMPANY_DATA;
+
   /* ═══ DYNAMIC CHART DATA ═══ */
   const funnelStages = ["Screening", "Technical", "On-site", "Offer"];
   const funnelData = funnelStages.map((stage, idx) => ({
     stage,
-    [companyA]: (dataA || mockData(companyA)).funnel?.[idx] || 0,
-    [companyB]: (dataB || mockData(companyB)).funnel?.[idx] || 0,
+    [companyA]: safeData(dataA).funnel?.[idx] || 0,
+    [companyB]: safeData(dataB).funnel?.[idx] || 0,
   }));
 
   const growthStages = ["L3/Junior", "L4/Software", "L5/Senior", "L6/Staff"];
   const growthData = growthStages.map((stage, idx) => ({
     stage,
-    [companyA]: (dataA || mockData(companyA)).salaryGrowth?.[idx] || 0,
-    [companyB]: (dataB || mockData(companyB)).salaryGrowth?.[idx] || 0,
+    [companyA]: safeData(dataA).salaryGrowth?.[idx] || 0,
+    [companyB]: safeData(dataB).salaryGrowth?.[idx] || 0,
   }));
 
   return (
@@ -162,8 +174,8 @@ export default function CompareCompanies() {
           <>
             {/* Left Side: Company A */}
             <div className="lg:col-span-5 space-y-6">
-              <CompanyCard data={dataA || mockData(companyA)} name={companyA} />
-              <FocusCard topics={dataA?.interviewFocus || mockData(companyA).interviewFocus} />
+              <CompanyCard data={safeData(dataA)} name={companyA} />
+              <FocusCard topics={safeData(dataA).interviewFocus} />
             </div>
 
             {/* Comparison Center Bar */}
@@ -174,8 +186,8 @@ export default function CompareCompanies() {
 
             {/* Right Side: Company B */}
             <div className="lg:col-span-5 space-y-6">
-              <CompanyCard data={dataB || mockData(companyB)} name={companyB} />
-              <FocusCard topics={dataB?.interviewFocus || mockData(companyB).interviewFocus} />
+              <CompanyCard data={safeData(dataB)} name={companyB} />
+              <FocusCard topics={safeData(dataB).interviewFocus} />
             </div>
 
             {/* Interview Funnel Analysis — Recharts */}
@@ -279,7 +291,7 @@ export default function CompareCompanies() {
                       <Tooltip
                         contentStyle={{
                           background: "#131313",
-                          border: "1px solid rgba(ff,159,74,0.1)",
+                          border: "1px solid rgba(255,159,74,0.1)",
                           borderRadius: "12px",
                         }}
                       />
@@ -419,18 +431,4 @@ function FocusCard({ topics }) {
       </div>
     </div>
   );
-}
-
-function mockData(company) {
-  return MOCK_COMPARE_DATA[company] || { 
-    passRate: "5%", 
-    difficultyScore: "3.5", 
-    avgTC: "₹65,00,000", 
-    location: "Gurgaon", 
-    category: "Tech", 
-    tcNote: "", 
-    interviewFocus: ["Coding", "System Design", "Behavioral"],
-    funnel: [80, 50, 20, 5],
-    salaryGrowth: [30, 45, 60, 90]
-  };
 }

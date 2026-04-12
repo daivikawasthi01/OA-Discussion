@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { motion } from "framer-motion";
 
 import ExperienceCard from "../components/ExperienceCard";
@@ -35,16 +35,8 @@ export default function ExperienceDetail() {
     const fetchAll = async () => {
       try {
         const [expRes, followRes] = await Promise.all([
-          axios.get(`https://oadiscussion.onrender.com/api/experience/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(
-            "https://oadiscussion.onrender.com/api/users/followed/companies",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-              silent: true,
-            }
-          ),
+          api.get(`/api/experience/${id}`),
+          api.get("/api/users/followed/companies", { silent: true }),
         ]);
 
         setExp(expRes.data);
@@ -54,9 +46,8 @@ export default function ExperienceDetail() {
 
         // Fetch related
         if (expRes.data?.company) {
-          axios
-            .get("https://oadiscussion.onrender.com/api/experience", {
-              headers: { Authorization: `Bearer ${token}` },
+          api
+            .get("/api/experience", {
               params: { company: expRes.data.company, limit: 3 },
               silent: true,
             })
