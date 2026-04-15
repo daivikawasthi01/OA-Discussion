@@ -90,10 +90,9 @@ export default function Feed() {
         params: { limit: LIMIT }, silent: true,
       });
       const rawData = res.data.data || [];
+      // 🔓 Relax filtering: Show posts even if author data is partially missing
       const filtered = rawData.filter(exp => 
         exp.author && 
-        exp.author.email && 
-        exp.author.email !== 'UNKNOWN' && 
         exp.author.email !== 'null'
       );
       setData(filtered);
@@ -440,7 +439,7 @@ function Filters({ filters, apply, horizontal = false }) {
   );
 
   return horizontal ? (
-    <div className="flex gap-8 whitespace-nowrap">{content}</div>
+    <div className="flex items-center gap-6 whitespace-nowrap min-w-max pb-2">{content}</div>
   ) : (
     <div className="space-y-6">{content}</div>
   );
@@ -448,7 +447,7 @@ function Filters({ filters, apply, horizontal = false }) {
 
 function FilterSection({ title, children, horizontal }) {
   return (
-    <div className={horizontal ? "inline-flex items-center gap-3" : ""}>
+    <div className={horizontal ? "inline-flex items-center gap-4 flex-shrink-0" : ""}>
       <span className={`text-[10px] font-bold uppercase tracking-tighter text-[#ff9f4a] ${horizontal ? "shrink-0" : "block mb-3"}`}>{title}</span>
       <div className={`flex flex-wrap gap-2 ${horizontal ? "flex-nowrap" : ""}`}>{children}</div>
     </div>

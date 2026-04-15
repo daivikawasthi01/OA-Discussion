@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CompanyLogo from "../components/CompanyLogo";
 
+import { getCompanyKey } from "../services/normalize";
+import { COMPANY_DATA } from "../services/data";
+
 const SLUG_MAP = {
   Anthropic: "anthropic",
   Stripe: "stripe",
@@ -32,7 +35,7 @@ export default function Trending() {
       .get("/api/experience/trending", { silent: true })
       .then((res) => {
         const rawData = res.data || [];
-        const filtered = rawData.filter(item => 
+        const filtered = rawData.filter(item =>
           !item.author || (item.author.email && item.author.email !== 'UNKNOWN' && item.author.email !== 'null')
         );
         setTrending(filtered);
@@ -116,91 +119,33 @@ export default function Trending() {
           <>
             {/* Top 3 Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filtered.slice(0, 3).map((item, idx) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="bg-[#201f1f] rounded-xl p-8 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between min-h-[360px]"
-                >
-                  <div className="absolute top-4 right-4 molten-gradient text-[#180800] w-12 h-12 rounded-full flex items-center justify-center font-black text-lg shadow-lg">
-                    #{idx + 1}
-                  </div>
-
-                  <div>
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-[#131313] flex items-center justify-center p-1 relative">
-                        {renderLogo(item.company)}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{item.company}</h3>
-                        <p className="text-[10px] uppercase tracking-widest text-[#adaaaa]">
-                          {item.category || item.role || "Tech"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {(item.tags || []).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 bg-[#131313] text-[#adaaaa] text-[10px] rounded-full uppercase tracking-widest font-bold"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-
-                    <p className="text-[#adaaaa] text-sm leading-relaxed">
-                      {item.description || item.experience?.substring(0, 160) || "Trending discussion this week."}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center space-x-3 mt-6">
-                    <div className="flex -space-x-2">
-                      {[1, 2].map((a) => (
-                        <div key={a} className="w-8 h-8 rounded-full bg-[#262626] border-2 border-[#201f1f] flex items-center justify-center">
-                          <span className="material-symbols-outlined text-[#adaaaa] text-xs">person</span>
-                        </div>
-                      ))}
-                    </div>
-                    <button onClick={() => navigate(`/app/experience/${item.relatedExperience || item._id}`)} className="flex items-center space-x-2 text-[#ff9f4a] text-sm font-bold hover:underline">
-                      <span>View Discussion</span>
-                      <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Bottom Row */}
-            {filtered.length > 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filtered.slice(3, 5).map((item, idx) => (
+              {filtered.slice(0, 3).map((item, idx) => {
+                const companyKey = getCompanyKey(item.company);
+                const companyData = COMPANY_DATA.find(
+                  (c) => getCompanyKey(c.key) === companyKey
+                );
+                return (
                   <motion.div
                     key={item._id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + idx * 0.1 }}
-                    className="bg-[#201f1f] rounded-xl p-8 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between min-h-[280px]"
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-[#201f1f] rounded-xl p-8 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between min-h-[360px]"
                   >
-                    <div className="absolute top-4 right-4 bg-[#262626] text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-lg">
-                      #{idx + 4}
+                    <div className="absolute top-4 right-4 molten-gradient text-[#180800] w-12 h-12 rounded-full flex items-center justify-center font-black text-lg shadow-lg">
+                      #{idx + 1}
                     </div>
 
                     <div>
-                      <div className="flex items-center space-x-3 mb-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#131313] flex items-center justify-center p-1 relative">
-                          {renderLogo(item.company, "w-full h-full")}
+                      <div className="flex items-center space-x-3 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#131313] flex items-center justify-center p-1 relative">
+                          {renderLogo(item.company)}
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-white">{item.company}</h3>
-                          {item.category && (
-                            <p className="text-[10px] uppercase tracking-widest text-[#adaaaa]">
-                              {item.category}
-                            </p>
-                          )}
+                          <h3 className="text-xl font-bold text-white">{companyData?.name || item.company}</h3>
+                          <p className="text-[10px] uppercase tracking-widest text-[#adaaaa]">
+                            {item.category || item.role || "Tech"}
+                          </p>
                         </div>
                       </div>
 
@@ -216,20 +161,90 @@ export default function Trending() {
                       </div>
 
                       <p className="text-[#adaaaa] text-sm leading-relaxed">
-                        {item.description || item.experience?.substring(0, 160) || "Active discussion."}
+                        {item.description || item.experience?.substring(0, 160) || "Trending discussion this week."}
                       </p>
                     </div>
 
-                    <div className="flex items-center space-x-3 mt-4">
+                    <div className="flex items-center space-x-3 mt-6">
+                      <div className="flex -space-x-2">
+                        {[1, 2].map((a) => (
+                          <div key={a} className="w-8 h-8 rounded-full bg-[#262626] border-2 border-[#201f1f] flex items-center justify-center">
+                            <span className="material-symbols-outlined text-[#adaaaa] text-xs">person</span>
+                          </div>
+                        ))}
+                      </div>
                       <button onClick={() => navigate(`/app/experience/${item.relatedExperience || item._id}`)} className="flex items-center space-x-2 text-[#ff9f4a] text-sm font-bold hover:underline">
                         <span>View Discussion</span>
                         <span className="material-symbols-outlined text-sm">arrow_forward</span>
                       </button>
                     </div>
                   </motion.div>
-                ))}
+                );
+              })}  {/* ← FIX 1: was missing the } closing the arrow function body */}
+            </div>
+
+            {/* Bottom Row */}
+            {filtered.length > 3 ? (  // ← FIX 2: removed stray ( after {
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filtered.slice(3, 5).map((item, idx) => {
+                  const companyKey = getCompanyKey(item.company);
+                  const companyData = COMPANY_DATA.find(
+                    (c) => getCompanyKey(c.key) === companyKey
+                  );
+                  return (
+                    <motion.div
+                      key={item._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + idx * 0.1 }}
+                      className="bg-[#201f1f] rounded-xl p-8 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between min-h-[280px]"
+                    >
+                      <div className="absolute top-4 right-4 bg-[#262626] text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-lg">
+                        #{idx + 4}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 rounded-lg bg-[#131313] flex items-center justify-center p-1 relative">
+                            {renderLogo(item.company, "w-full h-full")}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-white">{companyData?.name || item.company}</h3>
+                            {item.category && (
+                              <p className="text-[10px] uppercase tracking-widest text-[#adaaaa]">
+                                {item.category}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {(item.tags || []).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-3 py-1 bg-[#131313] text-[#adaaaa] text-[10px] rounded-full uppercase tracking-widest font-bold"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <p className="text-[#adaaaa] text-sm leading-relaxed">
+                          {item.description || item.experience?.substring(0, 160) || "Active discussion."}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center space-x-3 mt-4">
+                        <button onClick={() => navigate(`/app/experience/${item.relatedExperience || item._id}`)} className="flex items-center space-x-2 text-[#ff9f4a] text-sm font-bold hover:underline">
+                          <span>View Discussion</span>
+                          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
-            )}
+            ) : null}
           </>
         )}
       </div>

@@ -7,7 +7,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`,
+      callbackURL: "http://localhost:5001/auth/google/callback",
+      proxy: true,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -23,12 +24,14 @@ passport.use(
         if (!user) {
           user = await User.create({
             email,
+            name: profile.displayName || email.split('@')[0],
             googleId: profile.id,
             isVerified: true,
           });
         } else if (!user.googleId) {
           // account linking
           user.googleId = profile.id;
+          user.name = user.name || profile.displayName || email.split('@')[0];
           user.isVerified = true;
           await user.save();
         }

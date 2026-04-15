@@ -134,8 +134,8 @@ export default function ExperienceCard({
 
       toast.success(
         !isFollowing
-          ? `Following ${exp.company}`
-          : `Unfollowed ${exp.company}`
+          ? `Following ${companyData?.name || exp.company}`
+          : `Unfollowed ${companyData?.name || exp.company}`
       );
     } catch {
       toast.error("Something went wrong");
@@ -198,6 +198,7 @@ export default function ExperienceCard({
   const isVerified =
     !exp?.isAnonymous && Number(exp?.author?.points || 0) >= 120;
 
+  const experienceText = exp.experienceText || exp.experience || "";
   const avatarLetter = authorEmail?.charAt(0)?.toUpperCase() || "?";
 
   /* ================= PATTERN FORMAT ================= */
@@ -219,7 +220,7 @@ export default function ExperienceCard({
       const res = await api.post(
         "/api/ai/summarize",
         {
-          text: exp.experienceText,
+          text: experienceText,
           topics: exp.topics,
           difficulty: exp.difficulty,
           questionPatterns: exp.questionPatterns,
@@ -305,7 +306,7 @@ export default function ExperienceCard({
                   <div className="flex-1 min-w-0">
                     <Link to={`/app/experience/${exp._id}`} className="hover:text-[#ff9f4a] transition-colors truncate block">
                       <h3 className="text-xl font-bold text-white block truncate">
-                        {exp.company}
+                        {companyData?.name || exp.company}
                       </h3>
                     </Link>
                   </div>
@@ -392,7 +393,7 @@ export default function ExperienceCard({
       ${expanded ? "max-h-[2000px]" : "max-h-[160px]"}
     `}
   >
-    <PlainAiText text={exp.experienceText} />
+    <PlainAiText text={experienceText} />
 
     {!expanded && (
       <div className="

@@ -24,6 +24,7 @@ router.get("/followed/companies", auth, ctrl.getFollowedCompanies);
 router.get("/me/unlocks", auth, ctrl.getMyUnlocks);
 
 // 👤 user profile + company-wise contribution tags
+router.get("/profile", auth, ctrl.getMyProfile);
 router.get("/me/profile", auth, ctrl.getMyProfile);
 // 🌐 public user profile (no auth)
 router.get("/:id/public", ctrl.getPublicProfile);

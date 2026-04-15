@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import api from "../services/api";
 
 /* ── useCountUp hook ── */
@@ -25,21 +25,26 @@ function useCountUp(target, duration = 800) {
   return value;
 }
 
+/* ── CountUpDisplay component ── */
+function CountUpDisplay({ value, className }) {
+  const count = useCountUp(value);
+  return <span className={className}>{count.toLocaleString()}</span>;
+}
+
+// Moved outside component — static constant, no need to redefine on every render
+const CATEGORY_MAP = {
+  "DSA": ["Algorithms", "Data Structures", "Dynamic Programming", "Graph Traversal", "Sliding Window", "Trees", "Trie", "Backtracking"],
+  "System Design": ["Distributed Systems", "Low-latency", "System Design", "Low-level Design", "Concurrency", "Database"],
+  "HR": ["Behavioral", "Leadership Principles", "HR", "Culture Fit"]
+};
+
 export default function Leaderboard() {
-  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [leaderboard, setLeaderboard] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
   const [range, setRange] = useState("WEEKLY");
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Overall");
-
-  // Filter Categories Mapping
-  const CATEGORY_MAP = {
-    "DSA": ["Algorithms", "Data Structures", "Dynamic Programming", "Graph Traversal", "Sliding Window", "Trees", "Trie", "Backtracking"],
-    "System Design": ["Distributed Systems", "Low-latency", "System Design", "Low-level Design", "Concurrency", "Database"],
-    "HR": ["Behavioral", "Leadership Principles", "HR", "Culture Fit"]
-  };
 
   useEffect(() => {
     const fetchEverything = async () => {
@@ -51,14 +56,14 @@ export default function Leaderboard() {
             silent: true
           }),
           api.get("/api/experience", {
-            params: { limit: 1000 }, // High limit for dataset cross-referencing
+            params: { limit: 1000 },
             silent: true
           })
         ]);
 
         const arr = Array.isArray(lbRes.data) ? lbRes.data : (lbRes.data?.data || []);
         setLeaderboard(arr);
-        
+
         const postsArr = postsRes.data?.data || [];
         setAllPosts(postsArr);
       } catch (err) {
@@ -77,25 +82,23 @@ export default function Leaderboard() {
     if (category === "Overall" || !allPosts.length) return [...leaderboard];
 
     const keywords = CATEGORY_MAP[category] || [];
-    
+
     return leaderboard
       .filter(user => {
-        // Step 1: Check dominant category
         if (user.dominantCategory === category) return true;
 
-        // Step 2: Check matching topics in their actual posts
-        const userPosts = allPosts.filter(p => 
-          (p.author?._id === user._id) || 
-          (p.user?._id === user._id) || 
+        const userPosts = allPosts.filter(p =>
+          (p.author?._id === user._id) ||
+          (p.user?._id === user._id) ||
           (p.author?.email === user.email) ||
           (p.user?.email === user.email)
         );
-        
+
         if (userPosts.length === 0) return false;
 
         return userPosts.some(p => {
           const combined = [
-            ...(p.topics || []), 
+            ...(p.topics || []),
             ...(p.questionPatterns || []),
             ...(p.dsaPatterns || [])
           ].map(t => t.toLowerCase());
@@ -250,13 +253,13 @@ export default function Leaderboard() {
               <p className="text-2xl font-bold text-white">Contribution Density</p>
             </div>
             <div className="flex space-x-2">
-              <button 
+              <button
                 onClick={() => setRange("WEEKLY")}
                 className={`h-10 w-24 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${range === "WEEKLY" ? "bg-[#ff9f4a]/10 text-[#ff9f4a] ring-1 ring-[#ff9f4a]/20" : "bg-[#201f1f] text-[#adaaaa]"}`}
               >
                 WEEKLY
               </button>
-              <button 
+              <button
                 onClick={() => setRange("MONTHLY")}
                 className={`h-10 w-24 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${range === "MONTHLY" ? "bg-[#ff9f4a]/10 text-[#ff9f4a] ring-1 ring-[#ff9f4a]/20" : "bg-[#201f1f] text-[#adaaaa]"}`}
               >
@@ -404,10 +407,4 @@ export default function Leaderboard() {
       })()}
     </motion.main>
   );
-}
-
-/* ── CountUpDisplay component ── */
-function CountUpDisplay({ value, className }) {
-  const count = useCountUp(value);
-  return <span className={className}>{count.toLocaleString()}</span>;
 }

@@ -12,7 +12,7 @@ exports.leaderboard = catchAsync(async (req, res) => {
   const users = await User.find()
     .sort({ points: -1 })
     .limit(10)
-    .select("email points");
+    .select("email name points");
 
   res.json(users);
 });

@@ -1,11 +1,14 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-const BACKEND_URL = process.env.VITE_API_URL || "https://oadiscussion.onrender.com";
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, path.resolve(__dirname), "");
+  const BACKEND_URL = env.VITE_API_URL || "https://oadiscussion.onrender.com";
+  console.log("Vite Proxy Target:", BACKEND_URL);
 
-export default defineConfig({
+  return {
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -29,4 +32,5 @@ export default defineConfig({
       },
     },
   },
+};
 });
